@@ -19,6 +19,7 @@ const Login: NextPage = () => {
   });
 
   const onValid = (data: LoginForm) => {
+    if (loading) return;
     login(data);
   };
 
