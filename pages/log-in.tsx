@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import Image from "next/image";
 import { FieldErrors, useForm } from "react-hook-form";
+import useMutation from "../lib/client/useMutation";
 
 interface LoginForm {
   email: string;
@@ -8,6 +9,7 @@ interface LoginForm {
 }
 
 const Login: NextPage = () => {
+  const [login, { loading, data, error }] = useMutation("/api/users/login");
   const {
     register,
     handleSubmit,
@@ -17,8 +19,7 @@ const Login: NextPage = () => {
   });
 
   const onValid = (data: LoginForm) => {
-    console.log("im valid bby");
-    console.log(data);
+    login(data);
   };
 
   const onInvalid = (errors: FieldErrors) => {
@@ -38,7 +39,7 @@ const Login: NextPage = () => {
         </h3>
         <h3 className="text-3xl font-bold text-center">Sign in to Twitter</h3>
         <form onSubmit={handleSubmit(onValid, onInvalid)}>
-          <div className="flex flex-col space-y-8 my-10">
+          <div className="flex flex-col my-10">
             <div className="w-full border-2 border-white rounded-lg bg-white flex gap-2 items-center p-2 focus-within:border-tw-primary">
               <Image src="/arroba.png" width={24} height={24} />
               <input
@@ -49,13 +50,13 @@ const Login: NextPage = () => {
                   required: "Email is required",
                   validate: {
                     notEmail: (value) =>
-                      !value.includes("@") || "this mail is not allowed",
+                      value.includes("@") || "this mail is not allowed",
                   },
                 })}
               />
-              {errors.email?.message}
             </div>
-            <div className="w-full border-2 border-white rounded-lg bg-white flex gap-2 items-center p-2 focus-within:border-tw-primary">
+            <span className="text-red-500">{errors.email?.message}</span>
+            <div className="w-full border-2 border-white rounded-lg bg-white flex gap-2 items-center p-2 focus-within:border-tw-primary mt-6">
               <Image src="/padlock.png" width={24} height={24} />
               <input
                 className="w-full bg-transparent outline-0 text-black"
@@ -64,10 +65,14 @@ const Login: NextPage = () => {
                 {...register("password", { required: "Password is required" })}
               />
             </div>
+            <span className="text-red-500">{errors.password?.message}</span>
           </div>
           <div className="flex flex-col space-y-3">
-            <button className="w-full text-2xl font-medium border-2 border-tw-primary rounded-md bg-tw-primary py-2 hover:opacity-90 shadow-2xl">
-              Sign in
+            <button
+              disabled={loading}
+              className="w-full text-2xl font-medium border-2 border-tw-primary rounded-md bg-tw-primary py-2 hover:opacity-90 shadow-2xl"
+            >
+              {loading ? "Loading ... " : "Sign in"}
             </button>
             <button className="w-full text-2xl font-medium border-2 border-tw-gray rounded-md bg-tw-gray py-2 hover:opacity-90 shadow-2xl">
               Forgot password?
